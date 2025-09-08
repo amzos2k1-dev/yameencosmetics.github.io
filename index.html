@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sell Items — Upload Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f9fafb; }
+    h1 { color: #111; }
+    form { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 6px; }
+    button { margin-top: 12px; padding: 10px 14px; border: none; background: #2563eb; color: #fff; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    .items { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 12px; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 10px; background: #fff; }
+    .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; }
+    .price { font-weight: bold; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Sell Items — Upload</h1>
+  <form id="itemForm">
+    <label>Item Name</label>
+    <input id="title" required />
+    <label>Price</label>
+    <input id="price" type="number" required />
+    <label>Description</label>
+    <textarea id="description"></textarea>
+    <label>Image</label>
+    <input id="imageInput" type="file" accept="image/*" />
+    <button type="submit">Add Item</button>
+  </form>
+
+  <div class="items" id="items"></div>
+
+  <script>
+    const form = document.getElementById('itemForm');
+    const itemsDiv = document.getElementById('items');
+    const title = document.getElementById('title');
+    const price = document.getElementById('price');
+    const description = document.getElementById('description');
+    const imageInput = document.getElementById('imageInput');
+    let items = JSON.parse(localStorage.getItem('items')||'[]');
+
+    function render() {
+      itemsDiv.innerHTML = '';
+      items.forEach((item,i) => {
+        const div = document.createElement('div');
+        div.className='card';
+        div.innerHTML = '<img src="'+(item.image||'')+'" alt=""><div>'+item.title+'</div><div>'+item.description+'</div><div class="price">PKR '+item.price+'</div>';
+        itemsDiv.appendChild(div);
+      });
+    }
+    render();
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const reader = new FileReader();
+      const file = imageInput.files[0];
+      reader.onload = () => {
+        const newItem = {title:title.value, price:price.value, description:description.value, image:reader.result};
+        items.push(newItem);
+        localStorage.setItem('items', JSON.stringify(items));
+        render();
+        form.reset();
+      };
+      if(file) reader.readAsDataURL(file); else reader.onload();
+    });
+  </script>
+</body>
+</html>
